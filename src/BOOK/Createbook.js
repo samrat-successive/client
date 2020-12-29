@@ -10,78 +10,60 @@ import {
   Input,
   InputGroup,
   Row,
-  Alert
 } from "reactstrap";
 import { useMutation } from "@apollo/react-hooks";
-import { ADD_USER } from "../Queries/user";
+import { ADD_BOOK } from "../Queries/book";
+import { withRouter } from "react-router-dom";
 
-function Createuser(props) {
-  const [user, setUser] = useState({
+function Createbook(props) {
+  const [book, setBook] = useState({
     name: "",
     description: "",
-    author: "",
-    price: "",
+    author:"",
+    price:""
   });
+  const [addBook] = useMutation(ADD_BOOK);
 
-  const [visible, setVisible] = useState({
-    status: false,
-    message: ''
-  });
-
-  const onDismiss = () => setVisible(false);
-
-  const [addUser] = useMutation(ADD_USER);
-
-  const InserUser = async (e) => {
+  const insertBook = async (e) => {
     e.preventDefault();
-    try {
-      let userData = '';
-      if (user.name !== "") {
-        userData = await addUser({
-          variables: {
-            name: user.name,
-            email: user.email,
-            password: user.password,
-          },
-        });
-      }
-      if (userData.data.createUser.token) {
-        props.history.push("/Signin");
-      }
-    } catch (error) {
-      setVisible({
-        status: true, message: "User already exists."
+    let bookData = '';
+    if (book.name !== '') {
+        bookData = await addBook({
+        variables: {
+          name: book.name,
+          description: book.description,
+          author: book.author,
+          price: book.price
+        },
       });
-      setTimeout(() => {
-        setVisible({
-          status: false
-        })
-      }, 5000);
     }
-
+    
+    if (bookData.data.createBook._id) {
+        props.history.push("/Listbook");
+      }
   };
 
   const onChange = (e) => {
     e.persist();
-    setUser({ ...user, [e.target.name]: e.target.value });
+    setBook({ ...book, [e.target.name]: e.target.value });
   };
 
   return (
-    <div className="app flex-row align-items-center">
+    <div className="app flex-row align-items-center" style={{width: "100%"}}>
       <Container>
         <Row className="justify-content-center">
           <Col md="12" lg="10" xl="8">
             <Card className="mx-4">
               <CardBody className="p-4">
-                <Form onSubmit={InserUser}>
-                  <h1>User Registration</h1>
+                <Form onSubmit={insertBook}>
+                  <h1>Add Book</h1>
                   <InputGroup className="mb-3">
                     <Input
                       type="text"
                       name="name"
                       id="name"
                       placeholder="Name"
-                      value={user.name}
+                      value={book.name}
                       onChange={onChange}
                     />
                   </InputGroup>
@@ -89,26 +71,33 @@ function Createuser(props) {
                   <InputGroup className="mb-3">
                     <Input
                       type="text"
-                      placeholder="Email"
-                      name="email"
-                      id="email"
-                      value={user.email}
+                      placeholder="Description"
+                      name="description"
+                      id="description"
+                      value={book.description}
                       onChange={onChange}
                     />
                   </InputGroup>
                   <InputGroup className="mb-3">
                     <Input
-                      type="password"
-                      placeholder="Password"
-                      name="password"
-                      id="password"
-                      value={user.password}
+                      type="text"
+                      placeholder="Author"
+                      name="author"
+                      id="author"
+                      value={book.author}
                       onChange={onChange}
                     />
                   </InputGroup>
-                  <Alert color="danger" isOpen={visible.status} toggle={onDismiss}>
-                    {visible.message}
-                  </Alert>
+                  <InputGroup className="mb-3">
+                    <Input
+                      type="text"
+                      placeholder="Price"
+                      name="price"
+                      id="price"
+                      value={book.price}
+                      onChange={onChange}
+                    />
+                  </InputGroup>
                   <CardFooter className="p-4">
                     <Row>
                       <Col xs="12" sm="6">
@@ -136,5 +125,4 @@ function Createuser(props) {
     </div>
   );
 }
-
-export default Createuser;
+export default withRouter(Createbook);

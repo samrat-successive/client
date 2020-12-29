@@ -1,17 +1,13 @@
-import React, { useEffect } from "react";
+import React from "react";
 import { Card, CardBody, CardHeader, Col, Row, Table } from "reactstrap";
 import { useQuery, useMutation } from "@apollo/react-hooks";
-import { GET_USERS, DELETE_USER } from "../Queries";
+import { GET_USERS, DELETE_USER } from "../Queries/user";
 
 function Listuser(props) {
   const { data: getAllUsers, loading, refetch } = useQuery(GET_USERS);
   const [deleteUser] = useMutation(DELETE_USER, {
     refetchQueries: [{ query: GET_USERS }]
   });
-
-  useEffect(() => {
-    refetch();
-  }, []);
 
   const deleteeployee = (id) => {
     deleteUser({
@@ -23,7 +19,7 @@ function Listuser(props) {
   };
   const editemployee = (id) => {
     props.history.push({
-      pathname: "/edit/" + id,
+      pathname: "/edituser/" + id,
     });
   };
   if (loading) return "loading";
@@ -33,7 +29,7 @@ function Listuser(props) {
         <Col>
           <Card>
             <CardHeader>
-              <i className="fa fa-align-justify"></i> Bokks List
+              <i className="fa fa-align-justify"></i> User's List
             </CardHeader>
             <CardBody>
               <Table hover bordered striped responsive size="sm">
@@ -41,22 +37,18 @@ function Listuser(props) {
                   <tr>
                     <th>Id</th>
                     <th>Name</th>
-                    <th>Description</th>
-                    <th>Author</th>
-                    <th>Price</th>
+                    <th>Email</th>
                     <th>Action</th>
                   </tr>
                 </thead>
                 <tbody>
                   {getAllUsers
-                    ? getAllUsers.books.map((item, idx) => {
+                    ? getAllUsers.users.map((item, idx) => {
                         return (
                           <tr key={idx}>
                             <td>{item.id}</td>
                             <td>{item.name}</td>
-                            <td>{item.description}</td>
-                            <td>{item.author}</td>
-                            <td>{item.price}</td>
+                            <td>{item.email}</td>
                             <td>
                               <div className="btn-group">
                                 <button
