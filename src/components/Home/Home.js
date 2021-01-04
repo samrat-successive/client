@@ -1,4 +1,4 @@
-import React,{ useEffect } from 'react';
+import React from 'react';
 import { withRouter } from 'react-router-dom';
 import Profile from "../../USER/Profile"
 function Home(props) {

@@ -12,7 +12,7 @@ function Listbook(props) {
 
     useEffect(() => {
         refetch();
-    }, []);
+    }, [getAllBooks, refetch]);
 
     const deleteBookById = (id) => {
         try {
@@ -27,10 +27,14 @@ function Listbook(props) {
         }
     };
     const editBook = (_id) => {
-        props.history.push({
-            pathname: "/Editbook",
-            state: _id
-        });
+        try {
+            props.history.push({
+                pathname: "/Editbook",
+                state: _id
+            });
+        } catch (error) {
+            console.log('Some went wrong');
+        }
     };
     if (loading) return "loading";
     return (

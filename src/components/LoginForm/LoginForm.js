@@ -19,7 +19,7 @@ function LoginForm(props) {
         if (token) {
             props.history.push('/Listbook')
         }
-    }, []);
+    },[token, props.history]);
 
     const handleChange = (e) => {
         const { id, value } = e.target
@@ -43,7 +43,6 @@ function LoginForm(props) {
                 userData = await signInUser({
                     variables: payload
                 });
-                console.log('userData.data', userData.data)
                 if (userData.data && userData.data.signInUser.token) {
                     localStorage.setItem(ACCESS_TOKEN_NAME, userData.data.signInUser.token);
                     redirectToHome();
