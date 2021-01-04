@@ -118,7 +118,7 @@ function Editbook(props) {
                                                 onChange={onChange}
                                             />
                                         </InputGroup>
-                                        {errors.name && <label className="validation-errors">{errors.name}</label>}
+                                        {errors.description && <label className="validation-errors">{errors.description}</label>}
                                     </div>
                                     <div className="form-group text-left">
                                         <InputGroup className="mb-3">
