@@ -19,28 +19,52 @@ function Createbook(props) {
   const [book, setBook] = useState({
     name: "",
     description: "",
-    author:"",
-    price:""
+    author: "",
+    price: ""
   });
   const [addBook] = useMutation(ADD_BOOK);
+  const [errors, setErrors] = useState({});
 
   const insertBook = async (e) => {
     e.preventDefault();
-    let bookData = '';
-    if (book.name !== '') {
+    let validForm = await validateForm(book);
+    try {
+      let bookData = '';
+      if (Object.keys(validForm).length === 0) {
         bookData = await addBook({
-        variables: {
-          name: book.name,
-          description: book.description,
-          author: book.author,
-          price: book.price
-        },
-      });
-    }
-    
-    if (bookData.data.createBook._id) {
-        props.history.push("/Listbook");
+          variables: {
+            name: book.name,
+            description: book.description,
+            author: book.author,
+            price: book.price
+          },
+        });
+        if (bookData.data && bookData.data.createBook._id) {
+          props.history.push("/Listbook");
+        }
       }
+    } catch (errors) {
+      props.showError(errors.message);
+    }
+  };
+
+  const validateForm = async (book) => {
+    let errors = {};
+    let { name, description, author, price } = book;
+    if (name === '') {
+      errors.name = 'Name field is required';
+    }
+    if (description === '') {
+      errors.description = 'Description field is required';
+    }
+    if (author === '') {
+      errors.author = 'Author field is required';
+    }
+    if (price === '') {
+      errors.price = 'Price field is required';
+    }
+    await setErrors(errors);
+    return errors;
   };
 
   const onChange = (e) => {
@@ -48,8 +72,12 @@ function Createbook(props) {
     setBook({ ...book, [e.target.name]: e.target.value });
   };
 
+  const redirectToList = () => {
+    props.history.push('/Listbook');
+  }
+
   return (
-    <div className="app flex-row align-items-center" style={{width: "100%"}}>
+    <div className="app flex-row align-items-center" style={{ width: "100%" }}>
       <Container>
         <Row className="justify-content-center">
           <Col md="12" lg="10" xl="8">
@@ -57,47 +85,58 @@ function Createbook(props) {
               <CardBody className="p-4">
                 <Form onSubmit={insertBook}>
                   <h1>Add Book</h1>
-                  <InputGroup className="mb-3">
-                    <Input
-                      type="text"
-                      name="name"
-                      id="name"
-                      placeholder="Name"
-                      value={book.name}
-                      onChange={onChange}
-                    />
-                  </InputGroup>
-
-                  <InputGroup className="mb-3">
-                    <Input
-                      type="text"
-                      placeholder="Description"
-                      name="description"
-                      id="description"
-                      value={book.description}
-                      onChange={onChange}
-                    />
-                  </InputGroup>
-                  <InputGroup className="mb-3">
-                    <Input
-                      type="text"
-                      placeholder="Author"
-                      name="author"
-                      id="author"
-                      value={book.author}
-                      onChange={onChange}
-                    />
-                  </InputGroup>
-                  <InputGroup className="mb-3">
-                    <Input
-                      type="text"
-                      placeholder="Price"
-                      name="price"
-                      id="price"
-                      value={book.price}
-                      onChange={onChange}
-                    />
-                  </InputGroup>
+                  <div className="form-group text-left">
+                    <InputGroup className="mb-3">
+                      <Input
+                        type="text"
+                        name="name"
+                        id="name"
+                        placeholder="Name"
+                        value={book.name}
+                        onChange={onChange}
+                      />
+                    </InputGroup>
+                    {errors.name && <label className="validation-errors">{errors.name}</label>}
+                  </div>
+                  <div className="form-group text-left">
+                    <InputGroup className="mb-3">
+                      <Input
+                        type="text"
+                        placeholder="Description"
+                        name="description"
+                        id="description"
+                        value={book.description}
+                        onChange={onChange}
+                      />
+                    </InputGroup>
+                    {errors.description && <label className="validation-errors">{errors.description}</label>}
+                  </div>
+                  <div className="form-group text-left">
+                    <InputGroup className="mb-3">
+                      <Input
+                        type="text"
+                        placeholder="Author"
+                        name="author"
+                        id="author"
+                        value={book.author}
+                        onChange={onChange}
+                      />
+                    </InputGroup>
+                    {errors.author && <label className="validation-errors">{errors.author}</label>}
+                  </div>
+                  <div className="form-group text-left">
+                    <InputGroup className="mb-3">
+                      <Input
+                        type="text"
+                        placeholder="Price"
+                        name="price"
+                        id="price"
+                        value={book.price}
+                        onChange={onChange}
+                      />
+                    </InputGroup>
+                    {errors.price && <label className="validation-errors">{errors.price}</label>}
+                  </div>
                   <CardFooter className="p-4">
                     <Row>
                       <Col xs="12" sm="6">
@@ -110,7 +149,9 @@ function Createbook(props) {
                         </Button>
                       </Col>
                       <Col xs="12" sm="6">
-                        <Button className="btn btn-info mb-1" block>
+                        <Button className="btn btn-info mb-1" block
+                          onClick={() => redirectToList()}
+                        >
                           <span>Cancel</span>
                         </Button>
                       </Col>

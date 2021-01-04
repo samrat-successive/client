@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import './LoginForm.css';
 import { ACCESS_TOKEN_NAME } from '../../constants/apiConstants';
 import { withRouter } from "react-router-dom";
@@ -13,6 +13,13 @@ function LoginForm(props) {
         successMessage: null
     })
     const [signInUser] = useMutation(SIGNIN_USER);
+    const [errors, setErrors] = useState({});
+    let token = localStorage.getItem(ACCESS_TOKEN_NAME);
+    useEffect(() => {
+        if (token) {
+            props.history.push('/Listbook')
+        }
+    }, []);
 
     const handleChange = (e) => {
         const { id, value } = e.target
@@ -24,31 +31,45 @@ function LoginForm(props) {
 
     const handleSubmitClick = async (e) => {
         e.preventDefault();
+
         const payload = {
             "email": state.email,
             "password": state.password,
         }
-
+        let validForm = await validateForm(state);
         let userData = '';
         try {
-            if (state.email !== "") {
+            if (Object.keys(validForm).length === 0) {
                 userData = await signInUser({
                     variables: payload
                 });
-            }
-            if (userData.data.signInUser.token) {
-                setState(prevState => ({
-                    ...prevState,
-                    'successMessage': 'Login successful. Redirecting to home page..'
-                }))
-                localStorage.setItem(ACCESS_TOKEN_NAME, userData.data.signInUser.token);
-                redirectToHome();
-                props.showError(null)
+                console.log('userData.data', userData.data)
+                if (userData.data && userData.data.signInUser.token) {
+                    localStorage.setItem(ACCESS_TOKEN_NAME, userData.data.signInUser.token);
+                    redirectToHome();
+                    props.showError(null)
+                }
             }
         } catch (errors) {
             props.showError(errors.message);
         }
     }
+
+    const validateForm = async (state) => {
+        let errors = {};
+        let { email, password } = state;
+        if (email === '') {
+            errors.email = 'Email address field is required';
+        } else if (!/\S+@\S+\.\S+/.test(email)) {
+            errors.email = 'Email address is invalid';
+        }
+        if (password === '') {
+            errors.password = 'Password field is required';
+        }
+        await setErrors(errors);
+        return errors;
+    };
+
     const redirectToHome = () => {
         props.updateTitle('List Book')
         props.history.push('/Listbook');
@@ -65,11 +86,13 @@ function LoginForm(props) {
                     <input type="email"
                         className="form-control"
                         id="email"
+                        name="email"
                         aria-describedby="emailHelp"
                         placeholder="Enter email"
                         value={state.email}
-                        onChange={handleChange}
+                        onChange={(e) => handleChange(e)}
                     />
+                    {errors.email && <label className="validation-errors">{errors.email}</label>}
                     <small id="emailHelp" className="form-text text-muted">We'll never share your email with anyone else.</small>
                 </div>
                 <div className="form-group text-left">
@@ -79,15 +102,16 @@ function LoginForm(props) {
                         id="password"
                         placeholder="Password"
                         value={state.password}
-                        onChange={handleChange}
+                        onChange={(e) => handleChange(e)}
                     />
+                    {errors.password && <label className="validation-errors">{errors.password}</label>}
                 </div>
                 <div className="form-check">
                 </div>
                 <button
                     type="submit"
                     className="btn btn-primary"
-                    onClick={handleSubmitClick}
+                    onClick={(e) => handleSubmitClick(e)}
                 >Submit</button>
             </form>
             <div className="alert alert-success mt-2" style={{ display: state.successMessage ? 'block' : 'none' }} role="alert">

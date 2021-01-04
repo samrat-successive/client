@@ -15,12 +15,16 @@ function Listbook(props) {
     }, []);
 
     const deleteBookById = (id) => {
-        deleteBook({
-            variables: {
-                id: id,
-            },
-        });
-        refetch();
+        try {
+            deleteBook({
+                variables: {
+                    id: id,
+                },
+            });
+            refetch();
+        } catch (error) {
+            console.log('Some went wrong');
+        }
     };
     const editBook = (_id) => {
         props.history.push({
@@ -30,8 +34,7 @@ function Listbook(props) {
     };
     if (loading) return "loading";
     return (
-        <div className="animated fadeIn" style={{width: "100%"}}>
-            {console.log('getAllBooks', getAllBooks)}
+        <div className="animated fadeIn" style={{ width: "100%" }}>
             <Row>
                 <Col>
                     <Card>
